@@ -1,271 +1,466 @@
-:root {
-    --dark: #374151;
-    --darker: #1f2937;
-    --darkest: #111827;
-    --gray: #6b7280;
-    --light: #eee;
-    --pink: #ec4899;
-    --purple: #8b5cf6;
+@keyframes shake {
+   0% { transform: translateY(0); }
+   25% { transform: translateY(-3px); }
+   50% { transform: translateY(3px); }
+   75% { transform: translateY(-3px); }
+   100% { transform: translateY(0); }
 }
+
+
+:root {
+   --dark: #374151;
+   --darker: #1f2937;
+   --darkest: #111827;
+   --gray: #6b7280;
+   --light: #eee;
+   --pink: #ec4899;
+   --purple: #8b5cf6;
+   --arrow-bg: rgba(255, 255, 255, 0.3);
+   --arrow-icon: url(https://upload.wikimedia.org/wikipedia/commons/9/9d/Caret_down_font_awesome_whitevariation.svg);
+   --option-bg: white;
+   --select-bg: rgba(255, 255, 255, 0.2);
+}
+
 
 * {
-    box-sizing: border-box;
-    margin: 0;
-    font-family: 'Poppins', sans-serif;
+   box-sizing: border-box;
+   margin: 0;
+   font-family: 'Poppins', sans-serif;
 }
+
 
 body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    background: var(--dark);
-    color: #fff
+   display: flex;
+   flex-direction: column;
+   min-height: 100vh;
+   background: var(--dark);
+   color: #fff
 }
+
 
 header{
-    padding: 2rem 1rem;
-    max-width: 800px;
-    width: 100%;
-    margin: 0 auto;
+   padding: 2rem 1rem;
+   max-width: 800px;
+   width: 100%;
+   margin: 0 auto;
 }
+
 
 header h1 {
-    font-size: 2.5rem;
-    font-weight: 300;
-    color: var(--gray);
-    margin-bottom: 1rem;
+   font-size: 2.5rem;
+   font-weight: 300;
+   color: var(--gray);
+   margin-bottom: 1rem;
+   font-family:Georgia, 'Times New Roman', Times, serif;
 }
+
 
 #to-do-form {
-    display: flex;
+   display: flex;
 }
+
+
+#random-activity-btn {
+   background: none;
+   border: none;
+   cursor: pointer;
+   font-size: 2rem;
+   margin-right: 12px;
+   transition: transform 0.2s ease;
+}
+
+
+#random-activity-btn:hover {
+   animation: shake 0.3s ease-in-out;
+}
+
 
 input, button {
-    appearance: none;
-    border: none;
-    outline: none;
-    background: none;
+   appearance: none;
+   border: none;
+   outline: none;
+   background: none;
 }
+
 
 #new-task-input {
-    flex: 1 1 0%;
-    background-color: var(--darker);
-    padding: 1rem;
-    border-radius: 1rem;
-    margin-right: 1rem;
-    color: var(--light);
-    font-size: 1.25rem;
+   flex: 1 1 0%;
+   background-color: var(--darker);
+   padding: 1rem;
+   border-radius: 1rem;
+   margin-right: 0.5rem;
+   color: var(--light);
+   font-size: 1.25rem;
+   font-family: 'Poppins', sans-serif;
 }
+
 
 #new-task-input::placeholder {
-    color: var(--gray);
+   color: var(--gray);
 }
+
 
 #add-task-button {
-    color: var(--pink);
-    font-size: 1.25rem;
-    font-weight: 700;
-    background-image: linear-gradient(to right, var(--pink), var(--purple));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    cursor: pointer;
-    transition: 0.4s;
+   color: var(--pink);
+   font-size: 1.25rem;
+   font-weight: 700;
+   background-image: linear-gradient(to right, var(--pink), var(--purple));
+   -webkit-background-clip: text;
+   background-clip: text;
+   -webkit-text-fill-color: transparent;
+   cursor: pointer;
+   transition: 0.4s;
 }
+
 
 #add-task-button:hover {
-    opacity: 0.8;
+   opacity: 0.8;
 }
+
 
 #add-task-button:active {
-    opacity: 0.6;
+   opacity: 0.6;
 }
+
 
 main {
-    flex: 1 1 0%;
-    max-width: 800px;
-    width: 100%;
-    margin: 0 auto;
+   flex: 1 1 0%;
+   max-width: 800px;
+   width: 100%;
+   margin: 0 auto;
 }
+
 
 .task-list {
-    padding: 1rem;
+   padding: 1rem;
 }
+
 
 .task-list h2 {
-    font-size: 1.5rem;
-    font-weight: 300;
-    color: var(--gray);
-    margin-bottom: 0rem;
+   font-size: 1.5rem;
+   font-weight: 300;
+   color: var(--gray);
+   margin-bottom: 0rem;
+   font-family:Georgia, 'Times New Roman', Times, serif;
 }
+
 
 #tasks .task {
-    display: flex;
-    justify-content: space-between;
-    background-color: var(--darkest);
-    padding: 1rem;
-    border-radius: 1rem;
-    margin-bottom: 1rem;
+   display: flex;
+   justify-content: space-between;
+   background-color: var(--darkest);
+   padding: 1rem;
+   border-radius: 1rem;
+   margin-bottom: 1rem;
 }
+
 
 #tasks .task .content .text {
-    color: var(--light);
-    font-size: 16px;
-    width: 100%;
-    display: block;
-    transition: 0.4s;
+   color: var(--light);
+   font-size: 16px;
+   width: 100%;
+   display: block;
+   transition: 0.4s;
 }
+
 
 #tasks .task .content .text:not(:read-only) {
-    color: var(--pink);
+   color: var(--pink);
 }
+
 
 #tasks .task .actions {
-    display: flex;
-    margin: 0 -0.5rem;
+   display: flex;
+   margin: 0 -0.5rem;
 }
+
 
 .task .actions button {
-    cursor: pointer;
-    margin: 0 0.5rem;
-    font-size:  1.125rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    transition: 0.4s;
+   cursor: pointer;
+   margin: 0 0.5rem;
+   font-size:  1.125rem;
+   font-weight: 700;
+   text-transform: uppercase;
+   transition: 0.4s;
 }
+
 
 .task .actions button:hover {
-    opacity: 0.8;
+   opacity: 0.8;
 }
+
 
 .task .actions button:active {
-    opacity: 0.6;
+   opacity: 0.6;
 }
+
 
 .task .actions .edit {
-    background-image: linear-gradient(to right, var(--pink), var(--purple));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+   background-image: linear-gradient(to right, var(--pink), var(--purple));
+   -webkit-background-clip: text;
+   background-clip: text;
+   -webkit-text-fill-color: transparent;
 }
 
+
 .task .actions .delete {
-    color: crimson;
+   color: crimson;
 }
+
 
 .task .actions .edit {
-    background-image: linear-gradient(to right, var(--pink), var(--purple));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+   background-image: linear-gradient(to right, var(--pink), var(--purple));
+   -webkit-background-clip: text;
+   background-clip: text;
+   -webkit-text-fill-color: transparent;
 }
 
-.task .actions .delete {
-    color: crimson;
-}
 
 .content {
-    flex: 1 1 0%;
-    display: flex;
-    align-items: center;
+   flex: 1 1 0%;
+   display: flex;
+   align-items: center;
 }
 
+
 .checkbox {
-    margin-right: 1rem;
-    cursor: pointer;
-    width: 20px; /* Adjust size as needed */
-    height: 20px; /* Adjust size as needed */
+   margin-right: 1rem;
+   cursor: pointer;
+   width: 20px; /* Adjust size as needed */
+   height: 20px; /* Adjust size as needed */
 }
+
 
 /* Hide the default checkbox */
 .container input {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-    height: 0;
-    width: 0;
-    border-radius: 5px;
+   position: absolute;
+   opacity: 0;
+   cursor: pointer;
+   height: 0;
+   width: 0;
+   border-radius: 5px;
 }
 
+
 .container {
-    display: block;
-    position: relative;
-    cursor: pointer;
-    font-size: 20px;
-    user-select: none;
-    border-radius: 5px;
+   display: block;
+   position: relative;
+   cursor: pointer;
+   font-size: 20px;
+   user-select: none;
+   border-radius: 5px;
 }
+
 
 /* Create a custom checkbox */
 .checkmark {
-    position: relative;
-    top: 0;
-    left: 0;
-    height: 1.3em;
-    width: 1.3em;
-    background-color: #ccc;
-    border-radius: 5px;
-    margin-right: 20px; /* Add margin to the right of the checkbox */
+   position: relative;
+   top: 0;
+   left: 0;
+   height: 1.3em;
+   width: 1.3em;
+   background-color: #ccc;
+   border-radius: 5px;
+   margin-right: 20px; /* Add margin to the right of the checkbox */
 }
+
 
 /* When the checkbox is checked, add a blue background */
 .container input:checked ~ .checkmark {
-    transition: all 0.2s;
-    opacity: 1;
-    background-image: linear-gradient(45deg, rgb(100, 61, 219) 0%, rgb(217, 21, 239) 100%);
+   transition: all 0.2s;
+   opacity: 1;
+   background-image: linear-gradient(45deg, rgb(100, 61, 219) 0%, rgb(217, 21, 239) 100%);
 }
 
+
 .container input ~ .checkmark {
-    transition: all 0.2s;
-    opacity: 1;
+   transition: all 0.2s;
+   opacity: 1;
 }
+
 
 /* Create the checkmark/indicator (hidden when not checked) */
 .checkmark:after {
-    content: "";
-    position: absolute;
-    opacity: 0;
-    transition: all 0.2s;
+   content: "";
+   position: absolute;
+   opacity: 0;
+   transition: all 0.2s;
 }
+
 
 /* Show the checkmark when checked */
 .container input:checked ~ .checkmark:after {
-    opacity: 1;
-    transition: all 0.2s;
+   opacity: 1;
+   transition: all 0.2s;
 }
+
 
 /* Style the checkmark/indicator */
 .container .checkmark:after {
-    left: 0.45em;
-    top: 0.25em;
-    width: 0.25em;
-    height: 0.5em;
-    border: solid white;
-    border-width: 0 0.15em 0.15em 0;
-    transform: rotate(45deg);
+   left: 0.45em;
+   top: 0.25em;
+   width: 0.25em;
+   height: 0.5em;
+   border: solid white;
+   border-width: 0 0.15em 0.15em 0;
+   transform: rotate(45deg);
 }
+
 
 .text.completed {
-    text-decoration: line-through;
+   text-decoration: line-through;
 }
+
 
 .task-list-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   margin-bottom: 1rem;
 }
+
 
 #filter-tasks {
-    padding: 0.5rem;
-    font-size: 1rem;
-    margin-left: 1rem;
+   padding: 0.5rem;
+   font-size: 1rem;
+   margin-left: 1rem;
 }
 
+
 #no-tasks-message {
-    text-align: center;
-    color: var(--gray);
-    font-size: 1.2rem;
-    margin-top: 5rem;
-    opacity: 50%;
+   text-align: center;
+   color: var(--gray);
+   font-size: 1.2rem;
+   margin-top: 5rem;
+   opacity: 50%;
+}
+
+
+.last-updated {
+   color: var(--gray);
+   font-size: 0.8rem;
+   font-family: 'Poppins', sans-serif;
+   display: block; /* Ensure it takes up its own line */
+   text-align: right;
+}
+
+
+/* Task container styles */
+.task {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   background-color: var(--darkest);
+   padding: 1rem;
+   border-radius: 1rem;
+   margin-bottom: 1rem;
+   position: relative;
+   overflow: hidden;
+   transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+
+/* Add background highlight and subtle shadow on hover */
+.task:hover {
+   box-shadow: 0px 5px 15px rgba(255, 255, 255, 0.6);
+   transition: background-color 0.2s ease-in-out,
+               box-shadow 0.2s ease-in-out,
+               transform 0.2s ease-in-out;
+}
+/* Content area styles - removed animation */
+.task .content {
+   flex: 1;
+}
+
+
+/* Task actions container */
+.task .actions {
+   display: flex;
+   gap: 0.5rem;
+   position: absolute;
+   right: 1rem;
+   transform: translateX(120%);
+   transition: transform 0.3s ease-in-out;
+}
+
+
+/* Last updated text animation */
+.last-updated {
+   transition: opacity 0.3s ease-in-out;
+}
+
+
+.task:hover .last-updated {
+   opacity: 0;
+}
+
+
+/* Show actions on hover */
+.task:hover .actions {
+   transform: translateX(0);
+}
+
+
+/* Individual button animations */
+.task .actions button {
+   opacity: 0;
+   transform: translateX(20px);
+   transition: all 0.3s ease-in-out;
+}
+
+
+.task:hover .actions button {
+   opacity: 1;
+   transform: translateX(0);
+
+
+}
+
+
+/* Darken the text on hover */
+.task .actions .edit:hover {
+   filter: brightness(0.7); /* Darkens the gradient text */
+   transition: filter 0.1s ease-in-out; /* Faster darkening */
+}
+
+
+.task .actions .delete:hover {
+   filter: brightness(0.7); /* Darkens the gradient text */
+   transition: filter 0.1s ease-in-out; /* Faster darkening */
+}
+
+
+/* Dropdown Styling */
+#filter-tasks {
+   /* Reset */
+   appearance: none;
+   border: 0;
+   outline: 0;
+   font: inherit;
+   opacity: 0.7;
+   /* Personalization */
+   width: 9rem; /* Adjusted width to fit task list */
+   height: 2.5rem;
+   padding: 1px 0.7em;
+   background: var(--arrow-icon) no-repeat right 0.4em center / 1.2em,
+       linear-gradient(to left, var(--arrow-bg) 2em, var(--select-bg) 2em);
+   color: white;
+   border-radius: 0.5em;
+   cursor: pointer;
+}
+
+
+#add-task-button {
+   font-size: 3rem; /* Bigger plus symbol */
+   font-weight: bold;
+   width: 3rem; /* Square shape */
+   height: 3rem;
+   text-align: center;
+   line-height: 3rem;
+   background: linear-gradient(to right, var(--purple), var(--pink));
+   -webkit-background-clip: text;
+   background-clip: text;
+   -webkit-text-fill-color: transparent;
+   cursor: pointer;
+   transition: transform 0.3s ease-in-out;
 }
