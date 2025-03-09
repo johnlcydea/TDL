@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="h-screen flex justify-center items-center">
+    <div class="grid gap-8">
+      <section
+        id="back-div"
+        class="bg-gradient-to-r from-blue-500 to-purple-500 rounded-3xl"
+      >
+        <div
+          class="border-8 border-transparent rounded-xl shadow-xl p-8 m-2 w-96"
+          style="background-color: #111827"
+        >
+          <h1 class="text-3xl font-bold text-center cursor-default text-white">
+            Log in
+          </h1>
+          <form
+            id="login-form"
+            action="#"
+            method="post"
+            class="space-y-6 p-6"
+            style="background-color: #111827"
+          >
+            <div>
+              <label for="email" class="block mb-2 text-lg text-gray-300"
+                >Email</label
+              >
+              <input
+                id="email"
+                class="border p-3 shadow-md bg-indigo-700 text-gray-300 border-gray-700 rounded-lg w-full focus:ring-2 focus:ring-blue-500 transition transform hover:scale-105 duration-300"
+                type="email"
+                placeholder="Email"
+                required=""
+              />
+            </div>
+            <div>
+              <label for="password" class="block mb-2 text-lg text-gray-300"
+                >Password</label
+              >
+              <input
+                id="password"
+                class="border p-3 shadow-md bg-indigo-700 text-gray-300 border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-blue-500 transition transform hover:scale-105 duration-300"
+                type="password"
+                placeholder="Password"
+                required=""
+              />
+            </div>
+            <br />
+            <!-- <a href="#" class="text-blue-400 text-sm transition hover:underline">Forget your password?</a> -->
+            <button
+              class="w-full p-3 mt-4 text-white bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg hover:scale-105 transition transform duration-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              type="submit"
+            >
+              LOG IN
+            </button>
+          </form>
+
+          <hr class="w-5/6 mx-auto border-gray-600 mt-1 mb-5" />
+
+          <!-- OR log in with Google Section -->
+          <div class="text-center text-gray-300 text-sm">
+            <p class="mb-2">or log in with</p>
+            <div id="third-party-auth" class="flex justify-center">
+              <button
+                class="p-2 rounded-lg hover:scale-105 transition transform duration-300 shadow-lg"
+                id="login-button"
+              >
+                <img
+                  class="w-6 h-6"
+                  loading="lazy"
+                  src="https://ucarecdn.com/8f25a2ba-bdcf-4ff1-b596-088f330416ef/"
+                  alt="Google"
+                />
+              </button>
+            </div>
+          </div>
+          <!--<hr class="w-5/6 mx-auto border-gray-600 mt-3 mb-1"> -->
+
+          <!-- Sign Up Section -->
+          <!-- <div class="flex flex-col mt-4 text-sm text-center text-gray-300">
+                    <p>
+                        Don't have an account?
+                        <a href="/register" class="text-blue-400 transition hover:underline">Sign Up</a>
+                    </p>
+                </div> -->
+        </div>
+      </section>
+    </div>
+    <script src="login.js"></script>
+  </body>
+</html>

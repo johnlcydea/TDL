@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body
+    class="bg-gray-900 text-white flex justify-center items-center min-h-screen"
+  >
+    <div
+      class="max-w-2xl w-full mx-auto relative overflow-hidden z-10 bg-gray-800 p-8 rounded-lg shadow-lg before:w-24 before:h-24 before:absolute before:bg-purple-600 before:rounded-full before:-z-10 before:blur-2xl after:w-32 after:h-32 after:absolute after:bg-sky-400 after:rounded-full after:-z-10 after:blur-xl after:top-24 after:-right-12"
+    >
+      <h1 class="text-3xl font-bold text-center mb-6">Admin Dashboard</h1>
+
+      <div class="flex justify-between mb-6">
+        <button
+          id="todoListBtn"
+          class="bg-blue-500 px-4 py-2 rounded-md font-bold hover:opacity-80"
+        >
+          ↩️ Return
+        </button>
+        <button
+          id="loadUsersBtn"
+          class="bg-purple-600 px-4 py-2 rounded-md font-bold hover:opacity-80"
+        >
+          👤 Load Users
+        </button>
+        <button
+          id="logoutBtn"
+          class="bg-red-500 px-4 py-2 rounded-md font-bold hover:opacity-80"
+        >
+          🚪 Logout
+        </button>
+      </div>
+
+      <div id="userList" class="space-y-4 hidden">
+        <!-- User list will be loaded here -->
+      </div>
+    </div>
+    <script src="main.js"></script>
+    <script>
+      let currentAdminId = null;
+      async function fetchCurrentAdmin() {
+        try {
+          const res = await fetch("/api/current_user", {
+            credentials: "include",
+          });
+          if (res.ok) {
+            const admin = await res.json();
+            currentAdminId = admin._id;
+          }
+        } catch (error) {
+          console.error("Error fetching current admin:", error);
+        }
+      }
+      fetchCurrentAdmin();
+
+      let isUserListVisible = false; // Track visibility state
+
+      document
+        .getElementById("loadUsersBtn")
+        .addEventListener("click", async () => {
+          const userList = document.getElementById("userList");
+
+          if (isUserListVisible) {
+            userList.innerHTML = ""; // Clear user list when hiding
+            userList.classList.add("hidden"); // Hide list
+            isUserListVisible = false;
+            return;
+          }
+
+          const res = await fetch("/users", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${getCookie("token")}`,
+            },
+          });
+
+          if (res.ok) {
+            const users = await res.json();
+            userList.innerHTML = ""; // Clear previous data
+            users.forEach((user) => {
+              const userElement = document.createElement("div");
+              userElement.className = "bg-gray-700 p-4 rounded-md shadow-md";
+              userElement.innerHTML = `
+                    <p class="text-lg font-semibold">${user.displayName} 
+                        <span class="text-gray-300">(${user.email})</span>
+                    </p>
+                    <p class="text-sm text-gray-400">Role: ${user.role}</p>
+                    <div class="mt-2 space-x-2" id="controls-${user._id}"></div>
+                `;
+
+              const controls = userElement.querySelector(
+                `#controls-${user._id}`
+              );
+
+              // Create dropdown for role selection
+              const roleDropdown = document.createElement("select");
+              roleDropdown.className =
+                "bg-yellow-600 px-3 py-1 rounded-md text-sm hover:opacity-80";
+              if (currentAdminId && user._id === currentAdminId) {
+                roleDropdown.disabled = true;
+                roleDropdown.innerHTML = `<option value="${
+                  user.role
+                }" selected>${
+                  user.role.charAt(0).toUpperCase() + user.role.slice(1)
+                }</option>`;
+              } else {
+                roleDropdown.innerHTML = `
+                        <option value="user" ${
+                          user.role === "user" ? "selected" : ""
+                        }>User</option>
+                        <option value="admin" ${
+                          user.role === "admin" ? "selected" : ""
+                        }>Admin</option>
+                    `;
+                roleDropdown.onchange = () =>
+                  confirmChangeRole(user._id, roleDropdown.value);
+              }
+              controls.appendChild(roleDropdown);
+
+              // Create delete button with self-deletion check
+              let deleteBtn;
+              if (currentAdminId && user._id === currentAdminId) {
+                deleteBtn = document.createElement("button");
+                deleteBtn.className =
+                  "bg-red-500 px-3 py-1 rounded-md text-sm opacity-50 cursor-not-allowed";
+                deleteBtn.textContent = "Delete";
+                deleteBtn.disabled = true;
+                deleteBtn.title = "You cannot delete yourself";
+              } else {
+                deleteBtn = document.createElement("button");
+                deleteBtn.className =
+                  "bg-red-500 px-3 py-1 rounded-md text-sm hover:opacity-80";
+                deleteBtn.textContent = "Delete";
+                deleteBtn.onclick = () => deleteUser(user._id);
+              }
+              controls.appendChild(deleteBtn);
+
+              userList.appendChild(userElement);
+            });
+
+            userList.classList.remove("hidden"); // Show list
+            isUserListVisible = true;
+          } else {
+            alert("Error fetching users");
+          }
+        });
+
+      async function confirmChangeRole(userId, newRole) {
+        const confirmed = confirm(
+          `Are you sure you want to change this user's role to ${newRole}?`
+        );
+        if (confirmed) {
+          const res = await fetch(`/users/${userId}/role`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${getCookie("token")}`,
+            },
+            body: JSON.stringify({ role: newRole }),
+          });
+          if (res.ok) {
+            alert("Role updated successfully");
+            // Toggle the user list refresh to update the UI
+            document.getElementById("loadUsersBtn").click();
+            document.getElementById("loadUsersBtn").click();
+          } else {
+            alert("Error updating role");
+            // Optionally, reload the list to revert the selection
+            document.getElementById("loadUsersBtn").click();
+            document.getElementById("loadUsersBtn").click();
+          }
+        } else {
+          // If cancelled, revert the selection by reloading the user list
+          document.getElementById("loadUsersBtn").click();
+          document.getElementById("loadUsersBtn").click();
+        }
+      }
+
+      async function deleteUser(userId) {
+        const confirmDelete = confirm(
+          "Are you sure you want to delete this user?"
+        );
+        if (confirmDelete) {
+          const res = await fetch(`/users/${userId}`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${getCookie("token")}`,
+            },
+          });
+
+          if (res.ok) {
+            alert("User deleted successfully");
+            document.getElementById("loadUsersBtn").click(); // Toggle list to refresh
+            document.getElementById("loadUsersBtn").click();
+          } else {
+            alert("Error deleting user");
+          }
+        }
+      }
+
+      function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(";").shift();
+      }
+
+      document
+        .getElementById("logoutBtn")
+        .addEventListener("click", async () => {
+          const res = await fetch("/auth/logout", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${getCookie("token")}`,
+            },
+          });
+
+          if (res.ok) {
+            alert("Logged out successfully");
+            window.location.href = "/login";
+          } else {
+            alert("Error logging out");
+          }
+        });
+
+      document.getElementById("todoListBtn").addEventListener("click", () => {
+        window.location.href = "/";
+      });
+    </script>
+  </body>
+</html>
