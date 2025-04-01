@@ -441,24 +441,30 @@ app.patch("/tasks/:id", authenticateJWT, async (req, res) => {
   }
 });
 
-app.get("/images", async (req, res) => {
+// In server.js - replace your current /images endpoint with this
+app.get("/images", authenticateJWT, async (req, res) => {
   try {
-    const params = { Bucket: process.env.S3_BUCKET_NAME };
-    const command = new ListObjectsV2Command(params);
-    const data = await s3Client.send(command);
+    const userId = req.user.id;
 
-    if (!data.Contents || !Array.isArray(data.Contents)) {
-      return res.status(200).json([]); // Handle empty case
-    }
+    // Option 1: Define a set of predefined images
+    // This avoids S3 listing operations completely
+    const predefinedImages = [
+      `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/bg1.png`,
+      `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/bg2.png`,
+      `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/bg3.png`,
+      `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/bg4.png`,
+      `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/bg5.png`,
+      // Add more images as needed
+    ];
 
-    const imageUrls = data.Contents.map(
-      (item) =>
-        `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${item.Key}`
-    );
+    res.status(200).json(predefinedImages);
 
-    res.status(200).json(imageUrls);
+    // Option 2 (alternative): If you store image references in your database
+    // const user = await User.findById(userId);
+    // const imageUrls = user.backgroundImages || [];
+    // res.status(200).json(imageUrls);
   } catch (error) {
-    console.error("AWS S3 Fetch Error:", error); // More specific logging
+    console.error("Error fetching images:", error);
     res.status(500).json({ error: "Error fetching images" });
   }
 });
