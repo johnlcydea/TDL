@@ -447,9 +447,9 @@ app.patch("/tasks/:id", authenticateJWT, async (req, res) => {
 // In server.js - replace your current /images endpoint with this
 app.get("/images", authenticateJWT, async (req, res) => {
   try {
-    const userId = req.user.id;
+    // Add logging to debug in production
+    console.log("Fetching images for user:", req.user.id);
 
-    // Option 1: Define a set of predefined images
     // This avoids S3 listing operations completely
     const predefinedImages = [
       `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/bg1.png`,
@@ -460,18 +460,19 @@ app.get("/images", authenticateJWT, async (req, res) => {
       // Add more images as needed
     ];
 
-    res.status(200).json(predefinedImages);
+    // Log the URLs being returned
+    console.log("Returning image URLs:", predefinedImages);
 
-    // Option 2 (alternative): If you store image references in your database
-    // const user = await User.findById(userId);
-    // const imageUrls = user.backgroundImages || [];
-    // res.status(200).json(imageUrls);
+    return res.status(200).json(predefinedImages);
   } catch (error) {
-    console.error("Error fetching images:", error);
-    res.status(500).json({ error: "Error fetching images" });
+    console.error("Error in /images endpoint:", error);
+    return res.status(500).json({
+      error: "Error fetching images",
+      details:
+        process.env.NODE_ENV !== "production" ? error.message : undefined,
+    });
   }
 });
-
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });

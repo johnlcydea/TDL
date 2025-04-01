@@ -10,7 +10,9 @@ window.addEventListener("load", async () => {
   let currentIndex = 0; // Index for cycling through images
 
   // Check if user is logged in
-  const response = await fetch("/api/current_user");
+  const response = await fetch(
+    `${window.appConfig.API_BASE_URL}/api/current_user`
+  );
   const user = await response.json();
 
   const logoutButton = document.querySelector("#logout-button");
@@ -21,7 +23,9 @@ window.addEventListener("load", async () => {
   }
 
   logoutButton.addEventListener("click", async () => {
-    await fetch("/auth/logout", { method: "POST" });
+    await fetch(`${window.appConfig.API_BASE_URL}/auth/logout`, {
+      method: "POST",
+    });
     alert("Logged out successfully");
     window.location.href = "/login";
   });
@@ -40,7 +44,9 @@ window.addEventListener("load", async () => {
         reader.onload = async (e) => {
           try {
             // Get current user first
-            const userResponse = await fetch("/api/current_user");
+            const userResponse = await fetch(
+              `${window.appConfig.API_BASE_URL}/api/current_user`
+            );
             const user = await userResponse.json();
 
             if (!user) {
@@ -245,7 +251,9 @@ window.addEventListener("load", async () => {
 
   const fetchTasks = async () => {
     try {
-      const response = await fetch("/api/current_user");
+      const response = await fetch(
+        `${window.appConfig.API_BASE_URL}/api/current_user`
+      );
       const user = await response.json();
 
       if (!user) {
@@ -254,7 +262,9 @@ window.addEventListener("load", async () => {
       }
 
       const userId = user._id; // Assuming the API returns the user's ID
-      const responseTasks = await fetch(`${API_BASE_URL}${userId}`);
+      const responseTasks = await fetch(
+        `${window.appConfig.API_BASE_URL}${userId}`
+      );
 
       if (responseTasks.status === 401) {
         window.location.href = "/login";
@@ -453,7 +463,7 @@ window.addEventListener("load", async () => {
             completed: task_checkbox_el.checked,
           };
 
-          await fetch(`${API_BASE_URL}${task_el.dataset.id}`, {
+          await fetch(`${window.appConfig.API_BASE_URL}${task_el.dataset.id}`, {
             method: "PATCH",
             headers: {
               "Content-Type": "application/json",
@@ -490,7 +500,7 @@ window.addEventListener("load", async () => {
         );
 
         if (confirmDelete) {
-          await fetch(`${API_BASE_URL}${task_el.dataset.id}`, {
+          await fetch(`${window.appConfig.API_BASE_URL}${task_el.dataset.id}`, {
             method: "DELETE",
           });
           list_el.removeChild(task_el);
@@ -504,7 +514,7 @@ window.addEventListener("load", async () => {
         completed: task_checkbox_el.checked,
       };
 
-      await fetch(`${API_BASE_URL}${task_el.dataset.id}`, {
+      await fetch(`${window.appConfig.API_BASE_URL}${task_el.dataset.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -536,7 +546,9 @@ window.addEventListener("load", async () => {
     }
 
     if (taskText) {
-      const userResponse = await fetch("/api/current_user");
+      const userResponse = await fetch(
+        `${window.appConfig.API_BASE_URL}/api/current_user`
+      );
       const user = await userResponse.json();
 
       if (!user) {
@@ -596,13 +608,15 @@ window.addEventListener("load", async () => {
   // Function to cycle images from S3 storage
   const cycleImages = async () => {
     try {
-      const userResponse = await fetch("/api/current_user");
+      const userResponse = await fetch(
+        `${window.appConfig.API_BASE_URL}/api/current_user`
+      );
       const user = await userResponse.json();
 
       if (!user) return;
 
       const userId = user._id; // Get user ID from API
-      const response = await fetch(`${API_BASE_URL}${userId}`);
+      const response = await fetch(`${window.appConfig.API_BASE_URL}${userId}`);
       images = await response.json();
 
       if (images.length > 0) {
@@ -647,7 +661,9 @@ window.addEventListener("load", async () => {
 
   async function checkRoleChange() {
     try {
-      const res = await fetch("/api/current_user");
+      const res = await fetch(
+        `${window.appConfig.API_BASE_URL}/api/current_user`
+      );
       if (res.ok) {
         const user = await res.json();
         // On first check, store the current role
@@ -657,7 +673,9 @@ window.addEventListener("load", async () => {
           alert(
             `Your role has been updated to ${user.role}. You will now be logged out.`
           );
-          await fetch("/auth/logout", { method: "POST" });
+          await fetch(`${window.appConfig.API_BASE_URL}/auth/logout`, {
+            method: "POST",
+          });
           window.location.href = "/login";
         }
       }
@@ -668,4 +686,13 @@ window.addEventListener("load", async () => {
 
   // Check for role changes every 3 seconds
   setInterval(checkRoleChange, 3000);
+});
+
+// Add this to server.js
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    time: new Date().toISOString(),
+    env: process.env.NODE_ENV || "development",
+  });
 });

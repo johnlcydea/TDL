@@ -19,13 +19,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       const password = document.getElementById("password").value; // Get password input value
 
       try {
-        const response = await fetch("/auth/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }), // Send email and password as JSON
-        });
+        const response = await fetch(
+          `${window.appConfig.API_BASE_URL}/auth/login`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, password }), // Send email and password as JSON
+          }
+        );
 
         if (response.ok) {
           // Redirect to the main page or dashboard
@@ -43,7 +46,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Fetch current user data
   try {
-    const userResponse = await fetch("/api/current_user");
+    const userResponse = await fetch(
+      `${window.appConfig.API_BASE_URL}/api/current_user`
+    );
 
     if (userResponse.ok) {
       const text = await userResponse.text(); // Read response as text first
