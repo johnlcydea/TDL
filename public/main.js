@@ -98,13 +98,16 @@ window.addEventListener("load", async () => {
               };
 
               try {
-                const response = await fetch("http://localhost:5001/tasks", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify(newTask),
-                });
+                const response = await fetch(
+                  `${window.appConfig.API_BASE_URL}/tasks`,
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(newTask),
+                  }
+                );
 
                 if (!response.ok) {
                   const errorData = await response.json();
@@ -152,7 +155,7 @@ window.addEventListener("load", async () => {
   document
     .querySelector("#export-button")
     .addEventListener("click", async () => {
-      const response = await fetch("http://localhost:5001/tasks");
+      const response = await fetch(`${window.appConfig.API_BASE_URL}/tasks`);
       const tasks = await response.json();
 
       // Check if there are any tasks
@@ -251,9 +254,7 @@ window.addEventListener("load", async () => {
       }
 
       const userId = user._id; // Assuming the API returns the user's ID
-      const responseTasks = await fetch(
-        `http://localhost:5001/tasks?userId=${userId}`
-      );
+      const responseTasks = await fetch(`${API_BASE_URL}${userId}`);
 
       if (responseTasks.status === 401) {
         window.location.href = "/login";
@@ -452,7 +453,7 @@ window.addEventListener("load", async () => {
             completed: task_checkbox_el.checked,
           };
 
-          await fetch(`http://localhost:5001/tasks/${task_el.dataset.id}`, {
+          await fetch(`${API_BASE_URL}${task_el.dataset.id}`, {
             method: "PATCH",
             headers: {
               "Content-Type": "application/json",
@@ -489,7 +490,7 @@ window.addEventListener("load", async () => {
         );
 
         if (confirmDelete) {
-          await fetch(`http://localhost:5001/tasks/${task_el.dataset.id}`, {
+          await fetch(`${API_BASE_URL}${task_el.dataset.id}`, {
             method: "DELETE",
           });
           list_el.removeChild(task_el);
@@ -503,7 +504,7 @@ window.addEventListener("load", async () => {
         completed: task_checkbox_el.checked,
       };
 
-      await fetch(`http://localhost:5001/tasks/${task_el.dataset.id}`, {
+      await fetch(`${API_BASE_URL}${task_el.dataset.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -551,7 +552,7 @@ window.addEventListener("load", async () => {
       };
 
       try {
-        const response = await fetch("http://localhost:5001/tasks", {
+        const response = await fetch(`${window.appConfig.API_BASE_URL}/tasks`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(task),
@@ -601,9 +602,7 @@ window.addEventListener("load", async () => {
       if (!user) return;
 
       const userId = user._id; // Get user ID from API
-      const response = await fetch(
-        `http://localhost:5001/images?userId=${userId}`
-      );
+      const response = await fetch(`${API_BASE_URL}${userId}`);
       images = await response.json();
 
       if (images.length > 0) {

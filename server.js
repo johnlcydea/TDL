@@ -33,10 +33,6 @@ app.use(
   })
 );
 
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
-});
-
 const authenticateJWT = (req, res, next) => {
   const token = req.cookies.token;
   if (!token) {
@@ -72,7 +68,10 @@ const authenticateJWT = (req, res, next) => {
 app.use(bodyParser.json());
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:5001"],
+    origin:
+      process.env.NODE_ENV === "production"
+        ? process.env.CLIENT_URL || true // Allow all origins in production or specific client URL
+        : ["http://localhost:3000", "http://localhost:5001"],
     credentials: true,
   })
 );
@@ -94,6 +93,7 @@ app.use(cookieParser());
 
 // MongoDB Atlas connection
 const uri =
+  process.env.MONGODB_URI ||
   "mongodb+srv://lrrecristobal:lQDnKOvj8nurk0PI@todocluster.inpor.mongodb.net/?retryWrites=true&w=majority&appName=todoCluster";
 mongoose
   .connect(uri)
@@ -167,7 +167,10 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "http://localhost:5001/auth/google/callback",
+      callbackURL:
+        process.env.NODE_ENV === "production"
+          ? `${process.env.BASE_URL}/auth/google/callback`
+          : "http://localhost:5001/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
