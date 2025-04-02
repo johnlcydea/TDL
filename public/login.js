@@ -1,72 +1,51 @@
-document.addEventListener("DOMContentLoaded", async () => {
-  const loginButton = document.querySelector("#login-button");
-  const loginForm = document.querySelector("#login-form"); // Select the login form
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="h-screen flex justify-center items-center">
+    <div class="grid gap-8">
+      <section
+        id="back-div"
+        class="bg-gradient-to-r from-blue-500 to-purple-500 rounded-3xl"
+      >
+        <div
+          class="border-8 border-transparent rounded-xl shadow-xl p-8 m-2 w-96"
+          style="background-color: #111827"
+        >
+          <h1 class="text-3xl font-bold text-center cursor-default text-white">
+            Welcome back!
+          </h1>
 
-  // Handle Google login button click
-  if (loginButton) {
-    loginButton.addEventListener("click", () => {
-      console.log("Login button clicked");
-      window.location.href = "/auth/google"; // Redirect to Google authentication
-    });
-  }
+          <hr class="w-5/6 mx-auto border-gray-600 mt-5 mb-" />
 
-  // Handle traditional login form submission
-  if (loginForm) {
-    loginForm.addEventListener("submit", async (e) => {
-      e.preventDefault(); // Prevent the default form submission
-
-      const email = document.getElementById("email").value; // Get email input value
-      const password = document.getElementById("password").value; // Get password input value
-
-      try {
-        const response = await fetch(
-          `${window.appConfig.API_BASE_URL}/auth/login`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ email, password }), // Send email and password as JSON
-          }
-        );
-
-        if (response.ok) {
-          // Redirect to the main page or dashboard
-          window.location.href = "/";
-        } else {
-          const errorData = await response.json();
-          alert(errorData.message || "Login failed. Please try again."); // Show error message
-        }
-      } catch (error) {
-        console.error("Error logging in:", error);
-        alert("An error occurred. Please try again later."); // Show generic error message
-      }
-    });
-  }
-
-  // Fetch current user data
-  try {
-    const userResponse = await fetch(
-      `${window.appConfig.API_BASE_URL}/api/current_user`,
-      { credentials: "include" }
-    );
-    
-
-    if (userResponse.ok) {
-      const text = await userResponse.text(); // Read response as text first
-
-      if (text) {
-        const user = JSON.parse(text); // Convert text to JSON if it's not empty
-
-        if (user && user.user !== null) {
-          loginButton.style.display = "none"; // Hide login button if user is logged in
-          loginForm.style.display = "none"; // Optionally hide the login form
-        }
-      }
-    } else {
-      console.warn("User  not authenticated or response not OK");
-    }
-  } catch (error) {
-    console.error("Error fetching user data:", error);
-  }
-});
+          <!-- log in with Google Section -->
+          <div class="text-center text-gray-300 text-sm">
+            <div id="third-party-auth" class="flex justify-center">
+              <button
+                class="w-full p-3 mt-4 text-white bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg hover:scale-105 transition transform duration-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center"
+                id="login-button"
+              >
+                <img
+                  class="w-7 h-7 mr-2 bg-white p-1 rounded-full"
+                  loading="lazy"
+                  src="https://ucarecdn.com/8f25a2ba-bdcf-4ff1-b596-088f330416ef/"
+                  alt="Google"
+                />
+                <span class="font-medium">Sign in with Google</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <script src="login.js"></script>
+  </body>
+</html>
