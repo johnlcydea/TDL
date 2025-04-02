@@ -47,8 +47,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Fetch current user data
   try {
     const userResponse = await fetch(
-      `${window.appConfig.API_BASE_URL}/api/current_user`
+      `${window.appConfig.API_BASE_URL}/api/current_user`,
+      { credentials: "include" }
     );
+    
 
     if (userResponse.ok) {
       const text = await userResponse.text(); // Read response as text first
