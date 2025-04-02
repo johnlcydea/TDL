@@ -91,12 +91,11 @@
         </section>
     </main>
 
-    <script src="/config.js"></script>
     <script src="main.js"></script>
     <script>
         async function checkUserRole() {
             try {
-                const response = await fetch(`${window.appConfig.API_BASE_URL}/api/current_user`, { credentials: 'include' });
+                const response = await fetch('/api/current_user', { credentials: 'include' });
                 const user = await response.json();
     
                 if (user.role === "admin") {
