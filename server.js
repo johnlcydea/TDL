@@ -33,6 +33,39 @@ app.use(
   })
 );
 
+// Middleware
+app.use(bodyParser.json());
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "http://localhost:5001"],
+    credentials: true,
+  })
+);
+app.use(express.static(path.join(__dirname, "public")));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "your_secret_key",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+    },
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(cookieParser());
+
+// MongoDB Atlas connection
+const uri =
+  "mongodb+srv://lrrecristobal:lQDnKOvj8nurk0PI@todocluster.inpor.mongodb.net/?retryWrites=true&w=majority&appName=todoCluster";
+mongoose
+  .connect(uri)
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error("MongoDB connection error:", err));
+
 const authenticateJWT = (req, res, next) => {
   const token = req.cookies.token;
   if (!token) {
@@ -63,42 +96,6 @@ const authenticateJWT = (req, res, next) => {
     next();
   });
 };
-
-// Middleware
-app.use(bodyParser.json());
-app.use(
-  cors({
-    origin:
-      process.env.NODE_ENV === "production"
-        ? process.env.CLIENT_URL || true // Allow all origins in production or specific client URL
-        : ["http://localhost:3000", "http://localhost:5001"],
-    credentials: true,
-  })
-);
-app.use(express.static(path.join(__dirname, "public")));
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "your_secret_key",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    },
-  })
-);
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(cookieParser());
-
-// MongoDB Atlas connection
-const uri =
-  process.env.MONGODB_URI ||
-  "mongodb+srv://lrrecristobal:lQDnKOvj8nurk0PI@todocluster.inpor.mongodb.net/?retryWrites=true&w=majority&appName=todoCluster";
-mongoose
-  .connect(uri)
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error("MongoDB connection error:", err));
 
 // User schema and model
 const userSchema = new mongoose.Schema({
@@ -169,7 +166,7 @@ passport.use(
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL:
         process.env.NODE_ENV === "production"
-          ? `${process.env.BASE_URL}/auth/google/callback`
+          ? "https://my-todo-list-production.up.railway.app/auth/google/callback"
           : "http://localhost:5001/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
@@ -242,9 +239,10 @@ app.get(
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
     });
 
-    return res.redirect("/"); // Always redirect to the to-do list first
+    return res.redirect("https://my-todo-list-production.up.railway.app/"); // Always redirect to the to-do list first
   }
 );
 
@@ -252,12 +250,32 @@ app.get("/protected-route", authenticateJWT, (req, res) => {
   res.json({ message: "Access granted!" });
 });
 
+// Root route - Redirects to login if not authenticated
 app.get("/", (req, res) => {
-  if (!req.user) {
-    return res.redirect("/login"); // Redirect to login if not authenticated
+  // Check if the user is authenticated using Passport
+  if (req.isAuthenticated()) {
+    return res.sendFile(path.join(__dirname, "public", "index.html")); // Serve index.html if authenticated
   }
-  res.sendFile(path.join(__dirname, "public", "index.html")); // Serve index.html
+
+  // If not authenticated by Passport, check for JWT token
+  const token = req.cookies.token;
+  if (token) {
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+      if (err) {
+        console.log("JWT token verification failed:", err);
+        return res.redirect("/login"); // If JWT is invalid, redirect to login
+      }
+
+      // If the token is valid, set the user data to req.user and serve index.html
+      req.user = user;
+      return res.sendFile(path.join(__dirname, "public", "index.html"));
+    });
+  } else {
+    // No JWT token present, redirect to login
+    return res.redirect("/login");
+  }
 });
+
 
 app.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "login.html"));
@@ -270,8 +288,26 @@ app.post("/auth/logout", authenticateJWT, (req, res) => {
     req.session.destroy(() => {
       res.clearCookie("token");
       res.json({ message: "Logged out successfully" });
+      res.redirect("/login");
     });
   });
+});
+
+app.get("/logout", authenticateJWT, (req, res) => {
+  req.logout((err) => {
+    if (err) return res.status(500).send("Logout error");
+
+    req.session.destroy(() => {
+      res.clearCookie("token");
+      res.redirect("/login");
+    });
+  });
+});
+
+app.get("/check", (req, res) => {
+  console.log("req.user:", req.user);
+  console.log("req.isAuthenticated():", req.isAuthenticated());
+  res.json({ isAuthenticated: req.isAuthenticated(), user: req.user });
 });
 
 app.get("/api/current_user", authenticateJWT, async (req, res) => {
@@ -353,7 +389,7 @@ app.delete(
 // Routes
 app.get("/tasks", authenticateJWT, async (req, res) => {
   try {
-    // Regular users only see their own tasks
+    // API endpoint to get task data
     const tasks = await Task.find({ userId: req.user.id });
     res.json(tasks);
   } catch (err) {
@@ -361,6 +397,7 @@ app.get("/tasks", authenticateJWT, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
 
 app.get("/tasks/:id", authenticateJWT, async (req, res) => {
   try {
@@ -447,9 +484,9 @@ app.patch("/tasks/:id", authenticateJWT, async (req, res) => {
 // In server.js - replace your current /images endpoint with this
 app.get("/images", authenticateJWT, async (req, res) => {
   try {
-    // Add logging to debug in production
-    console.log("Fetching images for user:", req.user.id);
+    const userId = req.user.id;
 
+    // Option 1: Define a set of predefined images
     // This avoids S3 listing operations completely
     const predefinedImages = [
       `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/bg1.png`,
@@ -460,19 +497,18 @@ app.get("/images", authenticateJWT, async (req, res) => {
       // Add more images as needed
     ];
 
-    // Log the URLs being returned
-    console.log("Returning image URLs:", predefinedImages);
+    res.status(200).json(predefinedImages);
 
-    return res.status(200).json(predefinedImages);
+    // Option 2 (alternative): store image references in database
+    // const user = await User.findById(userId);
+    // const imageUrls = user.backgroundImages || [];
+    // res.status(200).json(imageUrls);
   } catch (error) {
-    console.error("Error in /images endpoint:", error);
-    return res.status(500).json({
-      error: "Error fetching images",
-      details:
-        process.env.NODE_ENV !== "production" ? error.message : undefined,
-    });
+    console.error("Error fetching images:", error);
+    res.status(500).json({ error: "Error fetching images" });
   }
 });
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
