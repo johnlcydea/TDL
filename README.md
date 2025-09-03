@@ -1,8 +1,7 @@
 <h1>📝 My To-Do List</h1>
 
 <p>
-A full-stack web application to manage daily tasks with authentication, role-based access, and AWS S3 integration.  
-Developed as part of <strong>MO-IT149 Web Technology Application</strong>.
+A web-based application developed in our previous <strong>Web Technology Application</strong> course. It supports <strong>Google OAuth login</strong>, <strong>random activity suggestions</strong>, <strong>JSON import/export</strong>, and <strong>role-based access</strong>, alongside <strong>core task management features</strong>.
 </p>
 
 <hr/>
