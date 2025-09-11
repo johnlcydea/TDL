@@ -22,6 +22,15 @@ require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5001;
 
+// Needed for secure cookies when behind Render's proxy
+app.set("trust proxy", 1);
+
+// Absolute base URL (Render sets RENDER_EXTERNAL_URL automatically)
+const BASE_URL =
+  process.env.PUBLIC_BASE_URL ||
+  process.env.RENDER_EXTERNAL_URL ||
+  `http://localhost:${port}`;
+
 // Use helmet middleware for security
 //app.use(helmet()); //* some features of the website are not working if used
 
@@ -41,7 +50,7 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public"), { index: false }));
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "your_secret_key",
@@ -59,10 +68,9 @@ app.use(passport.session());
 app.use(cookieParser());
 
 // MongoDB Atlas connection
-const uri =
-  "mongodb+srv://lrrecristobal:lQDnKOvj8nurk0PI@todocluster.inpor.mongodb.net/?retryWrites=true&w=majority&appName=todoCluster";
+const mongoUri = process.env.MONGODB_URI || "mongodb://mongo:27017/todo_db";
 mongoose
-  .connect(uri)
+  .connect(mongoUri)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
@@ -164,10 +172,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL:
-        process.env.NODE_ENV === "production"
-          ? "https://my-todo-list-production.up.railway.app/auth/google/callback"
-          : "http://localhost:5001/auth/google/callback",
+      callbackURL: "http://localhost:5001/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -242,7 +247,7 @@ app.get(
       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
     });
 
-    return res.redirect("https://my-todo-list-production.up.railway.app/"); // Always redirect to the to-do list first
+    return res.redirect(process.env.POST_LOGIN_REDIRECT_URL || "/");
   }
 );
 
@@ -252,28 +257,18 @@ app.get("/protected-route", authenticateJWT, (req, res) => {
 
 // Root route - Redirects to login if not authenticated
 app.get("/", (req, res) => {
-  // Check if the user is authenticated using Passport
   if (req.isAuthenticated()) {
-    return res.sendFile(path.join(__dirname, "public", "index.html")); // Serve index.html if authenticated
+    return res.sendFile(path.join(__dirname, "public", "index.html"));
   }
-
-  // If not authenticated by Passport, check for JWT token
   const token = req.cookies.token;
   if (token) {
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-      if (err) {
-        console.log("JWT token verification failed:", err);
-        return res.redirect("/login"); // If JWT is invalid, redirect to login
-      }
-
-      // If the token is valid, set the user data to req.user and serve index.html
+    return jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+      if (err) return res.redirect("/login");
       req.user = user;
       return res.sendFile(path.join(__dirname, "public", "index.html"));
     });
-  } else {
-    // No JWT token present, redirect to login
-    return res.redirect("/login");
   }
+  return res.redirect("/login");
 });
 
 
