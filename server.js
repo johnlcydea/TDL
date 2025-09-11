@@ -46,7 +46,7 @@ app.use(
 app.use(bodyParser.json());
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:5001"],
+    origin: [BASE_URL, "http://localhost:3000"],
     credentials: true,
   })
 );
@@ -172,7 +172,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "http://localhost:5001/auth/google/callback",
+      callbackURL: `${BASE_URL}/auth/google/callback`,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -247,7 +247,7 @@ app.get(
       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
     });
 
-    return res.redirect(process.env.POST_LOGIN_REDIRECT_URL || "/");
+    return res.redirect("/");
   }
 );
 
@@ -257,18 +257,16 @@ app.get("/protected-route", authenticateJWT, (req, res) => {
 
 // Root route - Redirects to login if not authenticated
 app.get("/", (req, res) => {
-  if (req.isAuthenticated()) {
-    return res.sendFile(path.join(__dirname, "public", "index.html"));
-  }
   const token = req.cookies.token;
-  if (token) {
-    return jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-      if (err) return res.redirect("/login");
-      req.user = user;
-      return res.sendFile(path.join(__dirname, "public", "index.html"));
-    });
+  if (!token) return res.redirect("/login");
+
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = user;
+    return res.sendFile(path.join(__dirname, "public", "index.html"));
+  } catch {
+    return res.redirect("/login");
   }
-  return res.redirect("/login");
 });
 
 
