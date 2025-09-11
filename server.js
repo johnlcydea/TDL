@@ -275,13 +275,16 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/auth/logout", authenticateJWT, (req, res) => {
-  req.logout((err) => {
+  req.logout(err => {
     if (err) return res.status(500).json({ message: "Logout error" });
 
     req.session.destroy(() => {
-      res.clearCookie("token");
-      res.json({ message: "Logged out successfully" });
-      res.redirect("/login");
+      res.clearCookie("token", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      });
+      return res.status(204).end(); // single response
     });
   });
 });
