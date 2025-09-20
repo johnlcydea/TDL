@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Demo Login</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="h-screen flex justify-center items-center">
+    <div class="grid gap-8">
+      <section
+        id="back-div"
+        class="bg-gradient-to-r from-blue-500 to-purple-500 rounded-3xl"
+      >
+        <div
+          class="border-8 border-transparent rounded-xl shadow-xl p-8 m-2 w-96"
+          style="background-color: #111827"
+        >
+          <h1 class="text-3xl font-bold text-center cursor-default text-white">
+            🎯 Demo Mode
+          </h1>
+          
+          <p class="text-center text-gray-300 text-sm mt-4 mb-6">
+            Choose a demo user to see how the app works
+          </p>
+
+          <hr class="w-5/6 mx-auto border-gray-600 mt-5 mb-6" />
+
+          <!-- Demo User Options -->
+          <div class="space-y-4">
+            <button
+              class="w-full p-4 text-white bg-gradient-to-r from-green-500 to-blue-500 rounded-lg hover:scale-105 transition transform duration-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              onclick="demoLogin('user')"
+            >
+              <div class="flex items-center justify-center">
+                <span class="text-2xl mr-3">👤</span>
+                <div class="text-left">
+                  <div class="font-medium">Demo User</div>
+                  <div class="text-sm opacity-75">Regular user access</div>
+                </div>
+              </div>
+            </button>
+
+            <button
+              class="w-full p-4 text-white bg-gradient-to-r from-purple-500 to-red-500 rounded-lg hover:scale-105 transition transform duration-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              onclick="demoLogin('admin')"
+            >
+              <div class="flex items-center justify-center">
+                <span class="text-2xl mr-3">👑</span>
+                <div class="text-left">
+                  <div class="font-medium">Demo Admin</div>
+                  <div class="text-sm opacity-75">Admin dashboard access</div>
+                </div>
+              </div>
+            </button>
+          </div>
+
+          <div class="mt-6 p-4 bg-gray-800 rounded-lg">
+            <p class="text-gray-300 text-xs text-center">
+              ✨ <strong>Demo Features:</strong><br>
+              • Add, edit, and delete tasks<br>
+              • Mark tasks as complete<br>
+              • Admin dashboard (admin user)<br>
+              • No database required!
+            </p>
+          </div>
+
+          <div class="mt-4 text-center">
+            <a href="/api/demo-info" class="text-blue-400 hover:text-blue-300 text-sm">
+              📋 View Demo Info
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      async function demoLogin(userType) {
+        try {
+          const response = await fetch('/demo-login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userType }),
+            credentials: 'include'
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            // Show success message
+            showMessage(`Logged in as ${data.user.displayName} (${data.user.role})`, 'success');
+            
+            // Redirect after a short delay
+            setTimeout(() => {
+              window.location.href = '/';
+            }, 1500);
+          } else {
+            showMessage('Login failed. Please try again.', 'error');
+          }
+        } catch (error) {
+          console.error('Login error:', error);
+          showMessage('An error occurred during login.', 'error');
+        }
+      }
+
+      function showMessage(message, type) {
+        // Create and show a temporary message
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+          type === 'success' ? 'bg-green-500' : 'bg-red-500'
+        } text-white`;
+        messageDiv.textContent = message;
+        
+        document.body.appendChild(messageDiv);
+        
+        // Remove message after 3 seconds
+        setTimeout(() => {
+          document.body.removeChild(messageDiv);
+        }, 3000);
+      }
+
+      // Check if already logged in
+      window.addEventListener('load', async () => {
+        try {
+          const response = await fetch('/api/user', { credentials: 'include' });
+          if (response.ok) {
+            // Already logged in, redirect to main page
+            window.location.href = '/';
+          }
+        } catch (error) {
+          // Not logged in, stay on login page
+        }
+      });
+    </script>
+  </body>
+</html>

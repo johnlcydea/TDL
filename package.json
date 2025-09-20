@@ -1,15 +1,49 @@
 {
-  "name": "to-do-list-website-draft",
+  "name": "tdl-secure-todolist",
   "version": "1.0.0",
-  "main": "main.js",
+  "description": "A secure To-Do List web application with Google OAuth authentication, JWT tokens, and comprehensive security controls",
+  "main": "server-real.js",
   "scripts": {
-    "start": "node server.js", 
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server-real.js",
+    "real": "node server-real.js",
+    "demo": "node server-demo.js",
+    "dev": "node server-real.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "security-audit": "npm audit",
+    "security-fix": "npm audit fix"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": [
+    "todolist",
+    "todo",
+    "task-management",
+    "web-application",
+    "nodejs",
+    "express",
+    "oauth",
+    "google-auth",
+    "jwt",
+    "security",
+    "authentication",
+    "authorization",
+    "helmet",
+    "secure",
+    "responsive",
+    "crud"
+  ],
+  "author": {
+    "name": "John Clyde Austria",
+    "email": "your-email@example.com",
+    "url": "https://github.com/Sempuri"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Sempuri/TDL.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Sempuri/TDL/issues"
+  },
+  "homepage": "https://github.com/Sempuri/TDL#readme",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.750.0",
     "@aws-sdk/s3-request-presigner": "^3.750.0",

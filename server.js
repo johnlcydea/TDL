@@ -1,5 +1,5 @@
 const express = require("express");
-const mongoose = require("mongoose");
+// const mongoose = require("mongoose"); // Commented out for local development
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const multer = require("multer");

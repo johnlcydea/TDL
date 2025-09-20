@@ -11,7 +11,15 @@ window.addEventListener("load", async () => {
 
   // Check if user is logged in
   const response = await fetch("/api/current_user");
-  const user = await response.json();
+  let user = null;
+  
+  if (response.status === 401) {
+    // User is not authenticated, redirect to login
+    window.location.href = "/login";
+    return;
+  } else {
+    user = await response.json();
+  }
 
   const logoutButton = document.querySelector("#logout-button");
   if (user) {
@@ -21,9 +29,18 @@ window.addEventListener("load", async () => {
   }
 
   logoutButton.addEventListener("click", async () => {
-    await fetch("/auth/logout", { method: "POST" });
-    alert("Logged out successfully");
-    window.location.href = "/login";
+    try {
+      await fetch("/logout", { method: "POST" });
+      // Clear any local storage or session data
+      localStorage.clear();
+      sessionStorage.clear();
+      alert("Logged out successfully");
+      window.location.href = "/login";
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Force redirect even if logout request fails
+      window.location.href = "/login";
+    }
   });
 
   // import functionality
@@ -98,7 +115,7 @@ window.addEventListener("load", async () => {
               };
 
               try {
-                const response = await fetch("https://my-todo-list-production.up.railway.app/tasks", {
+                const response = await fetch("/api/tasks", {
                   method: "POST",
                   headers: {
                     "Content-Type": "application/json",
@@ -152,7 +169,7 @@ window.addEventListener("load", async () => {
   document
     .querySelector("#export-button")
     .addEventListener("click", async () => {
-      const response = await fetch("https://my-todo-list-production.up.railway.app/tasks");
+      const response = await fetch("/api/tasks");
       const tasks = await response.json();
 
       // Check if there are any tasks
@@ -243,6 +260,12 @@ window.addEventListener("load", async () => {
   const fetchTasks = async () => {
     try {
       const response = await fetch("/api/current_user");
+      
+      if (response.status === 401) {
+        window.location.href = "/login";
+        return;
+      }
+      
       const user = await response.json();
 
       if (!user) {
@@ -251,9 +274,7 @@ window.addEventListener("load", async () => {
       }
 
       const userId = user._id; // Assuming the API returns the user's ID
-      const responseTasks = await fetch(
-        `https://my-todo-list-production.up.railway.app/tasks?userId=${userId}`
-      );
+      const responseTasks = await fetch("/api/tasks");
 
       if (responseTasks.status === 401) {
         window.location.href = "/login";
@@ -275,7 +296,8 @@ window.addEventListener("load", async () => {
   };
 
   const createTaskElement = async (task) => {
-    let existingTask = document.querySelector(`.task[data-id='${task._id}']`);
+    const taskId = task._id || task.id; // Handle both _id and id formats
+    let existingTask = document.querySelector(`.task[data-id='${taskId}']`);
 
     if (existingTask) {
       // Remove the existing task element before re-adding it at the top
@@ -284,7 +306,7 @@ window.addEventListener("load", async () => {
 
     const task_el = document.createElement("div");
     task_el.classList.add("task");
-    task_el.dataset.id = task._id;
+    task_el.dataset.id = taskId;
     task_el.classList.add("move-to-top");
 
     // Add animation class
@@ -452,8 +474,8 @@ window.addEventListener("load", async () => {
             completed: task_checkbox_el.checked,
           };
 
-          await fetch(`https://my-todo-list-production.up.railway.app/tasks/${task_el.dataset.id}`, {
-            method: "PATCH",
+          await fetch(`/api/tasks/${task_el.dataset.id}`, {
+            method: "PUT",
             headers: {
               "Content-Type": "application/json",
             },
@@ -489,7 +511,7 @@ window.addEventListener("load", async () => {
         );
 
         if (confirmDelete) {
-          await fetch(`https://my-todo-list-production.up.railway.app/tasks/${task_el.dataset.id}`, {
+          await fetch(`/api/tasks/${task_el.dataset.id}`, {
             method: "DELETE",
           });
           list_el.removeChild(task_el);
@@ -503,8 +525,8 @@ window.addEventListener("load", async () => {
         completed: task_checkbox_el.checked,
       };
 
-      await fetch(`https://my-todo-list-production.up.railway.app/tasks/${task_el.dataset.id}`, {
-        method: "PATCH",
+      await fetch(`/api/tasks/${task_el.dataset.id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -551,7 +573,7 @@ window.addEventListener("load", async () => {
       };
 
       try {
-        const response = await fetch("https://my-todo-list-production.up.railway.app/tasks", {
+        const response = await fetch("/api/tasks", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(task),
@@ -602,8 +624,10 @@ window.addEventListener("load", async () => {
       if (!user) return;
 
       const userId = user._id; // Get user ID from API
-      const response = await fetch(`https://my-todo-list-production.up.railway.app/images?userId=${userId}`);
-      images = await response.json();
+      // For demo mode, use placeholder images
+      images = [];
+      // const response = await fetch(`/api/images?userId=${userId}`);
+      // images = await response.json();
 
       if (images.length > 0) {
         const overlay = document.querySelector(".background-overlay");
